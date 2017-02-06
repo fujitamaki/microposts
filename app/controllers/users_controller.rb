@@ -1,8 +1,8 @@
 class UsersController < ApplicationController
-  before_action :set_user, only: [:edit, :update]
+  before_action :set_user, only: [:show, :edit, :update]
+  before_action :correct_user, only: [:edit, :update]
   
   def show # 追加
-   @user = User.find(params[:id])
    @microposts = @user.microposts.order(created_at: :desc)
   end
   
@@ -21,13 +21,12 @@ class UsersController < ApplicationController
   end
   
   def edit
-    @user = User.find(params[:id])
   end
   
   def update
-    @user = User.find(params[:id])
     if @user.update_attributes(user_params)
-      # 更新に成功したときの処理
+      flash[:success] = "update profile"
+      redirect_to @user
     else
       render 'edit'
     end
@@ -41,12 +40,10 @@ class UsersController < ApplicationController
   end
   
   def set_user
-    if User.find(params[:id]) == current_user
-      @user = current_user
-    else
-      redirect_to root_path
-    end
+    @user = User.find(params[:id])
   end
-
   
+  def correct_user
+    redirect_to root_path if current_user != @user
+  end
 end
